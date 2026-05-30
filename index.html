@@ -7570,6 +7570,8 @@ const _origEnterGameIntro = window.enterGame;
 window.enterGame = async function(g){
   // 回放或恢复对局时不播开场
   if(state.replayMode){_origEnterGameIntro(g);return;}
+  // 联机模式不播开场,避免双方进度不同步
+  if(state.online){_origEnterGameIntro(g);return;}
   // 用户偏好:是否禁用开场动画?
   if(settings.skipIntro){_origEnterGameIntro(g);return;}
   await playIntro(g);
@@ -8491,7 +8493,7 @@ function startHeartbeat(){
         await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
       }
     }catch(e){console.warn('heartbeat fail', e);}
-  }, 5000);
+  }, 3000);
 }
 
 let _lastSeenMovesLen = 0;
@@ -8623,13 +8625,20 @@ function handleRoomUpdate(data){
   // 处理新移动
   const moves = data.moves || [];
   if(moves.length > _lastSeenMovesLen){
+    // 收集需要应用的移动(对方的)
+    const toApply = [];
     for(let i=_lastSeenMovesLen; i<moves.length; i++){
       const mv = moves[i];
-      if(mv.by !== _myRole){
-        applyRemoteMove(mv);
-      }
+      if(mv.by !== _myRole) toApply.push({index:i, mv});
     }
-    _lastSeenMovesLen = moves.length;
+    // 推进 _lastSeenMovesLen 到处理之前的值,稍后由 applyRemoteMovesSequential 推进到最终
+    if(toApply.length > 0){
+      console.log('[online] applying', toApply.length, 'remote moves');
+      applyRemoteMovesSequential(toApply, moves.length);
+    } else {
+      // 只有自己的步,直接推进
+      _lastSeenMovesLen = moves.length;
+    }
   }
 
   // 终局
@@ -8642,6 +8651,56 @@ function handleRoomUpdate(data){
     }else{
       showResult('你输了',`不错的对局,再来一局?`,'⚐');
     }
+  }
+}
+
+// 顺序应用一批远程移动,每一步等前一步落子动画完成再下一步
+// 失败的步会保留,下次心跳时重试
+let _applying = false;
+async function applyRemoteMovesSequential(toApply, finalLen){
+  if(_applying){
+    console.log('[online] still applying, skip this cycle');
+    return;
+  }
+  _applying = true;
+  try{
+    for(const {index, mv} of toApply){
+      // 记录应用前的 history.length
+      const beforeLen = (state.history && state.history.length) || 0;
+      try{
+        applyRemoteMove(mv);
+      }catch(e){
+        console.warn('[online] applyRemoteMove threw:', e);
+      }
+      // 等待落子完成(检测 history.length 变化或超时)
+      await new Promise(resolve=>{
+        const t0 = Date.now();
+        const check = ()=>{
+          const cur = (state.history && state.history.length) || 0;
+          if(cur > beforeLen){
+            resolve(true); return;
+          }
+          if(Date.now() - t0 > 800){ // 800ms 超时
+            console.warn('[online] move apply timeout, will retry next heartbeat');
+            resolve(false); return;
+          }
+          setTimeout(check, 60);
+        };
+        check();
+      });
+      // 检查是否真的应用成功
+      const afterLen = (state.history && state.history.length) || 0;
+      if(afterLen <= beforeLen){
+        // 这步没成功 → 不推进 _lastSeenMovesLen,等下次心跳重试
+        console.warn('[online] move at index', index, 'failed to apply, will retry');
+        _applying = false;
+        return; // 中断序列,不推进
+      }
+    }
+    // 全部成功 → 推进
+    _lastSeenMovesLen = finalLen;
+  } finally {
+    _applying = false;
   }
 }
 
