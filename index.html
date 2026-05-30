@@ -4108,15 +4108,20 @@ function initGo(wrap){
   function aiGo(){
     showThinkingGo(true);
     const diff = state.difficulty || 'normal';
-    const delay = diff === 'hard' ? 50 : (settings.aiDelay ? 450 : 50);
+    // 入门 0.4s 几乎瞬时,普通 1.2s,高手 50ms(因 KataGo/MCTS 内部就慢)
+    const delay = (diff === 'hard' || diff === 'normal') ? 50 : (settings.aiDelay ? 400 : 50);
     setTimeout(async ()=>{
       let move;
       try{
         if(diff === 'hard'){
-          // 高手难度:先试 KataGo,失败回退 MCTS
+          // 高手:KataGo,失败回退 MCTS
           move = await kataGoMove({SIZE, board, isLegal, isTrueEye, history: state.history})
                  || await mctsPickMove(2200);
+        } else if(diff === 'normal'){
+          // 普通:MCTS 1.2 秒
+          move = await mctsPickMove(1200);
         } else {
+          // 入门:启发式 1 步评估
           move = pickGoMove();
         }
       } catch(e){
@@ -4767,7 +4772,9 @@ function initGo(wrap){
     if(!status) return;
     if(on){
       const diff = state.difficulty || 'normal';
-      const label = diff === 'hard' ? '深度推演' : '思考中';
+      let label = '思考中';
+      if(diff === 'hard') label = '深度推演';
+      else if(diff === 'normal') label = '推演中';
       status.innerHTML = `执白 · <span class="thinking-dots">${label}<span></span><span></span><span></span></span>`;
     } else {
       status.textContent = '执白 · 等待中';
@@ -4776,6 +4783,20 @@ function initGo(wrap){
 
   wrap.appendChild(el);
   wrap.appendChild(goControls);
+
+  // 围棋人机模式:用 toast 介绍这一档使用的 AI 引擎
+  if(state.mode === 'ai'){
+    setTimeout(()=>{
+      const diff = state.difficulty || 'normal';
+      if(diff === 'hard'){
+        showToast('高手难度 · KataGo 神经网络 (业余 2 段)');
+      } else if(diff === 'normal'){
+        showToast('普通难度 · 蒙特卡洛搜索');
+      } else {
+        showToast('入门难度 · 启发式 AI');
+      }
+    }, 800);
+  }
 }
 
 /* ============================================
@@ -8514,6 +8535,67 @@ async function pollRoomOnce(){
     if(row && row.data) handleRoomUpdate(row.data);
   }catch(e){console.warn('poll fail', e);}
 }
+
+// ============================================
+// 联机健壮性增强
+// ============================================
+// 监测页面可见性:从后台切回来时强制重连+拉一次+补心跳
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && state.online && _roomCode){
+    console.log('[online] page visible → reconnect & poll');
+    // 重建 channel
+    try{ if(_roomChannel) _sb.removeChannel(_roomChannel); }catch(e){}
+    _roomChannel = null;
+    listenRoom();
+    pollRoomOnce();
+    // 立刻补一次心跳(后台时心跳可能被节流到 60s+)
+    if(_roomLocalState && _myRole !== 0 && _sb){
+      try{
+        if(_myRole===1) _roomLocalState.host = {..._roomLocalState.host, online:Date.now()};
+        else if(_roomLocalState.guest) _roomLocalState.guest = {..._roomLocalState.guest, online:Date.now()};
+        _roomLocalState.lastActivity = Date.now();
+        _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode).then(()=>{}, ()=>{});
+      }catch(e){}
+    }
+  }
+});
+
+// 监测网络在线/离线
+window.addEventListener('online', ()=>{
+  if(state.online && _roomCode){
+    console.log('[online] network back → reconnect');
+    showToast('网络已恢复 · 重连中…');
+    try{ if(_roomChannel) _sb.removeChannel(_roomChannel); }catch(e){}
+    _roomChannel = null;
+    listenRoom();
+    pollRoomOnce();
+  }
+});
+window.addEventListener('offline', ()=>{
+  if(state.online){
+    showToast('网络已断开');
+  }
+});
+
+// 定时强制健康检查:每 30 秒检查 channel 状态,如果不健康直接重建
+setInterval(()=>{
+  if(!state.online || !_roomCode) return;
+  // 如果 _roomChannel 不存在或 state 不是 SUBSCRIBED,重建
+  if(!_roomChannel){
+    console.log('[online] no channel → re-listen');
+    listenRoom();
+    return;
+  }
+  try{
+    const st = _roomChannel.state;
+    if(st && st !== 'joined' && st !== 'joining'){
+      console.log('[online] unhealthy channel state:', st, '→ reconnect');
+      try{ _sb.removeChannel(_roomChannel); }catch(e){}
+      _roomChannel = null;
+      listenRoom();
+    }
+  }catch(e){}
+}, 30000);
 
 function handleRoomUpdate(data){
   _roomLocalState = data;
