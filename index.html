@@ -8757,14 +8757,23 @@ function startOnlineGame(game, code){
 
 /* 把本地落子同步到 Firestore */
 async function sendMoveOnline(moveData){
-  if(!_sb || !_roomCode || !state.online || !_roomLocalState) return;
+  console.log('[online] sendMoveOnline called with:', moveData);
+  if(!_sb){console.warn('[online] sendMoveOnline: _sb is null'); return;}
+  if(!_roomCode){console.warn('[online] sendMoveOnline: _roomCode is null'); return;}
+  if(!state.online){console.warn('[online] sendMoveOnline: state.online is false'); return;}
+  if(!_roomLocalState){console.warn('[online] sendMoveOnline: _roomLocalState is null'); return;}
   try{
     const newMove = {by: _myRole, type:'place', data:moveData, t:Date.now()};
     _roomLocalState.moves = [...(_roomLocalState.moves||[]), newMove];
     _roomLocalState.lastActivity = Date.now();
     _lastSeenMovesLen = _roomLocalState.moves.length;
-    await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
-  }catch(e){console.error('send move failed',e);}
+    const {error} = await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
+    if(error){
+      console.error('[online] supabase update error:', error);
+    } else {
+      console.log('[online] move sent to server successfully, total moves:', _roomLocalState.moves.length);
+    }
+  }catch(e){console.error('[online] send move failed',e);}
 }
 
 async function declareWinnerOnline(winner){
@@ -8889,6 +8898,7 @@ document.addEventListener('click', (e)=>{
   // 找到棋盘容器
   const wrap = document.getElementById('boardWrap');
   if(!wrap || !wrap.contains(e.target)) return;
+  console.log('[online] click on board, state.current=', state.current, 'myRole=', _myRole);
   // 轮到我吗?未轮到则拦截
   if(state.current !== _myRole){
     e.stopPropagation();
@@ -8898,6 +8908,7 @@ document.addEventListener('click', (e)=>{
   }
   // 计算这次点击在棋盘上的 (r, c)
   const coord = computeClickCoord(e);
+  console.log('[online] coord computed:', coord);
   if(coord) _pendingMove = coord;
 }, true);
 
@@ -8987,17 +8998,20 @@ function watchAndSendMove(){
   if(state._applyingRemote) return;
   if(!state.history) return;
   const newLen = state.history.length;
+  const game = state.game; // 修复:之前 game 只在 if 内定义,else 分支引用会报错
   if(newLen > _lastHistLen){
-    // 落子或移动成功
-    const game = state.game;
+    console.log('[online] local move detected, history:', _lastHistLen, '→', newLen, 'pending:', _pendingMove);
     if(['gomoku','go','reversi','tictactoe','connect4'].includes(game)){
       if(_pendingMove){
+        console.log('[online] sending move to server:', _pendingMove);
         sendMoveOnline({r:_pendingMove.r, c:_pendingMove.c});
         _pendingMove = null;
+      } else {
+        console.warn('[online] history grew but _pendingMove is null! Move NOT sent.');
       }
     } else if(['chess','xiangqi','checkers'].includes(game)){
-      // 选子型:_pendingMove 在两次点击间有两个;需要记两次
       if(_selectedSource && _pendingMove){
+        console.log('[online] sending select-move:', _selectedSource, '→', _pendingMove);
         sendMoveOnline({
           fr:_selectedSource.r, fc:_selectedSource.c,
           tr:_pendingMove.r, tc:_pendingMove.c,
@@ -9005,13 +9019,11 @@ function watchAndSendMove(){
         _selectedSource = null;
         _pendingMove = null;
       } else if(_pendingMove){
-        // 一次点击没产生 move(只是选中),记下源
         _selectedSource = _pendingMove;
         _pendingMove = null;
       }
     }
-  } else if(newLen === _lastHistLen && game_select_type()){
-    // 选子但没移动:_pendingMove 是源
+  } else if(newLen === _lastHistLen && ['chess','xiangqi','checkers'].includes(game)){
     if(_pendingMove){
       _selectedSource = _pendingMove;
       _pendingMove = null;
