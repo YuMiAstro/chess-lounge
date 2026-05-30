@@ -148,7 +148,167 @@ body::before{
 /* ====== 主区域容器 ====== */
 .main{flex:1;padding:0 40px 40px;}
 
-/* ====== 大厅 hero ====== */
+/* ====== 预对局设置弹窗 ====== */
+.pregame-modal{
+  background:var(--bg-0);border-radius:var(--r-xl);
+  padding:36px;width:520px;max-width:92vw;max-height:90vh;overflow-y:auto;
+  position:relative;
+  animation:modalIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+.pregame-modal::before{
+  content:'';position:absolute;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,98,58,0.12),transparent 60%);
+  top:-100px;right:-80px;filter:blur(20px);pointer-events:none;
+}
+.pregame-head{
+  position:relative;z-index:2;display:flex;align-items:center;gap:14px;
+  margin-bottom:22px;
+}
+.pregame-icon{
+  width:54px;height:54px;border-radius:16px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--ink-0),var(--ink-1));
+  color:var(--bg-0);font-family:'Noto Serif SC';font-weight:700;font-size:26px;
+}
+.pregame-titles{flex:1;min-width:0;}
+.pregame-title-cn{
+  font-family:'Noto Serif SC';font-weight:700;font-size:24px;
+  color:var(--ink-0);line-height:1.1;
+}
+.pregame-title-en{
+  font-family:'Fraunces';font-style:italic;font-size:12px;
+  color:var(--ink-2);letter-spacing:2px;margin-top:2px;
+}
+.pregame-section{
+  position:relative;z-index:2;margin-bottom:18px;
+}
+.pregame-label{
+  font-size:11px;letter-spacing:2px;color:var(--ink-2);
+  text-transform:uppercase;margin-bottom:10px;font-weight:600;
+}
+.pregame-mode-row,
+.pregame-diff-row,
+.pregame-persona-row{
+  display:grid;gap:8px;
+}
+.pregame-mode-row{grid-template-columns:1fr 1fr;}
+.pregame-diff-row{grid-template-columns:repeat(3,1fr);}
+.pregame-persona-row{grid-template-columns:repeat(3,1fr);}
+.pregame-opt{
+  padding:14px 12px;border-radius:14px;
+  border:2px solid var(--line);background:var(--panel-strong);
+  cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;color:var(--ink-1);
+  transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.pregame-opt-sub{
+  font-size:10px;font-weight:400;color:var(--ink-2);letter-spacing:0.5px;
+}
+.pregame-opt:hover{border-color:var(--accent);}
+.pregame-opt.active{border-color:var(--accent);background:rgba(212,98,58,0.08);color:var(--accent);}
+.pregame-opt.active .pregame-opt-sub{color:var(--accent);opacity:0.7;}
+
+.pregame-actions{
+  display:flex;gap:10px;margin-top:24px;
+  position:relative;z-index:2;
+}
+.pregame-actions button{
+  flex:1;padding:14px;border-radius:18px;border:none;
+  font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;
+  transition:all .3s;letter-spacing:0.5px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.pregame-actions .secondary{background:rgba(42,42,46,0.06);color:var(--ink-1);}
+.pregame-actions .secondary:hover{background:rgba(42,42,46,0.12);}
+.pregame-actions .primary{background:var(--accent);color:white;}
+.pregame-actions .primary:hover{background:var(--accent-soft);}
+
+/* 通用确认框 */
+.confirm-modal{
+  background:var(--bg-0);border-radius:var(--r-xl);
+  padding:32px;width:380px;max-width:90vw;
+  position:relative;text-align:center;
+  animation:modalIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+.confirm-icon{
+  width:52px;height:52px;margin:0 auto 14px;
+  border-radius:50%;display:grid;place-items:center;
+  background:rgba(212,98,58,0.12);color:var(--accent);
+  font-size:24px;
+}
+.confirm-title{
+  font-family:'Fraunces';font-weight:300;font-size:22px;
+  color:var(--ink-0);margin-bottom:6px;
+}
+.confirm-msg{
+  font-size:13px;color:var(--ink-2);line-height:1.5;
+  margin-bottom:22px;
+}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-actions button{
+  flex:1;padding:12px;border-radius:14px;border:none;
+  font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;
+  transition:all .25s;
+}
+.confirm-actions .secondary{background:rgba(42,42,46,0.06);color:var(--ink-1);}
+.confirm-actions .primary{background:var(--accent);color:white;}
+.confirm-actions .primary:hover{background:var(--accent-soft);}
+
+/* 对局中:左侧 mode/AI 区域改为只读 */
+.board-config-locked{
+  pointer-events:none;opacity:0.55;
+  position:relative;
+}
+.board-config-locked::after{
+  content:'对局中 · 已锁定';
+  position:absolute;right:0;top:-2px;
+  font-size:10px;font-weight:600;color:var(--accent);
+  letter-spacing:1.5px;
+}
+
+/* ====== 教学模式 ====== */
+.teach-toast{
+  position:fixed;
+  left:50%;top:90px;transform:translateX(-50%) translateY(-100%);
+  padding:10px 22px;border-radius:999px;
+  background:linear-gradient(135deg,var(--ink-0),var(--ink-1));
+  color:var(--bg-0);
+  font-size:13px;font-weight:500;letter-spacing:1px;
+  box-shadow:0 12px 28px rgba(0,0,0,0.2);
+  z-index:900;opacity:0;
+  transition:all .5s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+}
+.teach-toast::before{
+  content:'📖';font-size:14px;
+}
+.teach-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.teach-confirm-modal{
+  background:var(--bg-0);border-radius:var(--r-xl);
+  padding:32px;width:400px;max-width:92vw;
+  position:relative;
+  animation:modalIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+.teach-confirm-icon{
+  width:50px;height:50px;margin:0 auto 14px;
+  border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#C9A961,#B89A55);color:white;
+  font-size:24px;
+}
+.teach-confirm-title{
+  font-family:'Fraunces';font-weight:300;font-size:22px;
+  color:var(--ink-0);margin-bottom:10px;text-align:center;
+}
+.teach-confirm-list{
+  background:rgba(212,98,58,0.08);
+  border-radius:14px;padding:14px 16px;margin-bottom:20px;
+}
+.teach-confirm-list li{
+  font-size:13px;line-height:1.6;color:var(--ink-1);
+  margin-left:8px;list-style-type:'⚠ ';
+}
 .hero{
   display:grid;grid-template-columns:1.2fr 1fr;
   gap:32px;margin-bottom:40px;
@@ -2554,6 +2714,30 @@ body::before{
   </div>
 </div>
 
+<!-- 预对局设置弹窗 -->
+<div class="modal-mask" id="pregameMask">
+  <div class="pregame-modal" id="pregameBox">
+    <!-- JS 注入 -->
+  </div>
+</div>
+
+<!-- 通用确认弹窗 -->
+<div class="modal-mask" id="confirmMask">
+  <div class="confirm-modal" id="confirmBox">
+    <!-- JS 注入 -->
+  </div>
+</div>
+
+<!-- 教学提示 toast -->
+<div class="teach-toast" id="teachToast"></div>
+
+<!-- 教学确认 -->
+<div class="modal-mask" id="teachConfirmMask">
+  <div class="teach-confirm-modal" id="teachConfirmBox">
+    <!-- JS 注入 -->
+  </div>
+</div>
+
 <!-- 提示 -->
 <div class="toast" id="toast"></div>
 
@@ -2601,6 +2785,13 @@ body::before{
       </div>
       <div class="setting-row">
         <div>
+          <div class="setting-label">背景音乐</div>
+          <div class="setting-desc">对局时的氛围音</div>
+        </div>
+        <button class="toggle on" id="bgmToggle" onclick="toggleBgm(this)"></button>
+      </div>
+      <div class="setting-row">
+        <div>
           <div class="setting-label">动画速度</div>
           <div class="setting-desc">数值越大动画越快</div>
         </div>
@@ -2633,6 +2824,13 @@ body::before{
           <div class="setting-desc">让 AI 看起来在"思考"</div>
         </div>
         <button class="toggle on" id="aiDelayToggle" onclick="toggleSetting('aiDelay',this)"></button>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">教学模式</div>
+          <div class="setting-desc">围棋:实时讲解局势,提示常见错招</div>
+        </div>
+        <button class="toggle" id="teachToggle" onclick="toggleSetting('teach',this)"></button>
       </div>
     </div>
 
@@ -2880,6 +3078,8 @@ function showResult(title,msg,icon='♛'){
   document.getElementById('modalMsg').textContent = msg;
   document.getElementById('modalIcon').textContent = icon;
   document.getElementById('modal').classList.add('show');
+  // 对局结束时停背景音乐
+  if(typeof stopBgm === 'function') stopBgm();
 }
 function closeModal(){document.getElementById('modal').classList.remove('show');}
 
@@ -3510,8 +3710,19 @@ function initReversi(wrap){
     state.history.push({undo:()=>{board[r][c]=0;flips.forEach(([fr,fc])=>board[fr][fc]=p===1?2:1);render();}});
     // 切换或终局
     const next=p===1?2:1;
-    if(hasMove(next)){state.current=next;setActivePlayer(next);}
-    else if(hasMove(p)){showToast('对方无棋可走');}
+    if(hasMove(next)){
+      state.current=next;
+      setActivePlayer(next);
+      if(state.mode==='ai'&&state.current===2&&!state.gameOver) setTimeout(aiR,500);
+    }
+    else if(hasMove(p)){
+      // 对方无棋可走,保持当前方继续
+      showToast(`${next===1?'黑':'白'}方无棋可走 · 跳过`);
+      state.current = p;
+      setActivePlayer(p);
+      // 如果 AI 模式下当前轮到 AI(p===2),继续让 AI 走
+      if(state.mode==='ai' && p===2 && !state.gameOver) setTimeout(aiR, 500);
+    }
     else{
       state.gameOver=true;
       let b=0,w=0;board.flat().forEach(v=>{if(v===1)b++;if(v===2)w++;});
@@ -3520,23 +3731,58 @@ function initReversi(wrap){
       else showResult('平局',`${b} : ${w}`,'◇');
       return;
     }
-    if(state.mode==='ai'&&state.current===2&&!state.gameOver) setTimeout(aiR,500);
   }
   function hasMove(p){
     for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(validMove(r,c,p).length>0) return true;
     return false;
   }
   function aiR(){
-    let best=null,bestS=-1;
+    if(state.gameOver) return;
+    let best=null, bestS=-Infinity;
     const weights=[[120,-20,20,5,5,20,-20,120],[-20,-40,-5,-5,-5,-5,-40,-20],[20,-5,15,3,3,15,-5,20],[5,-5,3,3,3,3,-5,5],[5,-5,3,3,3,3,-5,5],[20,-5,15,3,3,15,-5,20],[-20,-40,-5,-5,-5,-5,-40,-20],[120,-20,20,5,5,20,-20,120]];
+    const candidates = [];
     for(let r=0;r<N;r++) for(let c=0;c<N;c++){
       const f=validMove(r,c,2);
       if(f.length>0){
-        const s = f.length + weights[r][c];
+        const diff = state.difficulty || 'normal';
+        let s = weights[r][c] + f.length * 2;
+        // 难度加扰动
+        if(diff==='easy') s += (Math.random()-0.5)*80;
+        else if(diff==='normal') s += (Math.random()-0.5)*20;
+        // 风格
+        const persona = state.persona || 'balanced';
+        if(persona==='aggressive') s += f.length * 3;  // 多翻
+        else if(persona==='defensive') s += weights[r][c] * 0.3; // 重位置
+        candidates.push({r,c,f,s});
         if(s>bestS){bestS=s;best={r,c,f};}
       }
     }
-    if(best) placeR(best.r,best.c,2,best.f);
+    // 难度简单从前 3 个随机
+    if(candidates.length > 0){
+      const diff = state.difficulty || 'normal';
+      if(diff==='easy' && candidates.length > 1){
+        candidates.sort((a,b)=>b.s-a.s);
+        best = candidates[Math.floor(Math.random()*Math.min(3, candidates.length))];
+      }
+    }
+    if(best){
+      placeR(best.r, best.c, 2, best.f);
+    } else {
+      // 走到这说明没有合法点(理论上 placeR 已处理,但兜底)
+      console.warn('Reversi AI: no valid move');
+      // 切回玩家
+      if(hasMove(1)){
+        state.current = 1;
+        setActivePlayer(1);
+      } else {
+        // 都没棋:终局
+        state.gameOver = true;
+        let b=0,w=0;board.flat().forEach(v=>{if(v===1)b++;if(v===2)w++;});
+        if(b>w) showResult('黑方胜',`${b} : ${w}`,'♛');
+        else if(w>b) showResult('白方胜',`${w} : ${b}`,'♛');
+        else showResult('平局',`${b} : ${w}`,'◇');
+      }
+    }
   }
   wrap.appendChild(el);
 }
@@ -3550,6 +3796,8 @@ function initGo(wrap){
   const captured={1:0,2:0};
   let passCount = 0;   // 连续虚着次数
   let lastMove = null; // 用于劫的简化检测
+  // 清空 KataGo 历史
+  if(window.clearKataMoveHistory) window.clearKataMoveHistory();
 
   const el=document.createElement('div');
   el.className='go-board';
@@ -3653,6 +3901,47 @@ function initGo(wrap){
       if(p===state.current && state.current===1) showToast('禁着点 · 自杀着');
       return false;
     }
+    // 教学模式:玩家落子前的"危险提示"——下到自己的眼里、二线一线开局
+    if(settings.teach && p === 1 && state.mode === 'ai' && !state._teachConfirming && !state._teachSkipNext){
+      // 检查这步是否明显是坏招
+      const warnings = [];
+      // 1. 检查是否填进自己的真眼
+      if(isTrueEye(r, c, 1)){
+        warnings.push('这是自己已经做好的眼,填了就少一个眼了');
+      }
+      // 2. 检查落完后的气数
+      const newLibs = withMove(r, c, 1, ()=>{
+        return countLiberties(getGroup(r, c));
+      });
+      if(newLibs === 1){
+        warnings.push('这步只剩 1 口气,下一手可能被吃');
+      }
+      // 3. 开局前 10 手下到一线
+      if(state.history.length < 20){
+        const fromEdge = Math.min(r, c, SIZE-1-r, SIZE-1-c);
+        if(fromEdge === 0){
+          warnings.push('开局阶段不建议下到一线,效率太低');
+        }
+      }
+      if(warnings.length > 0){
+        // 弹个轻量提示,玩家决定是否仍要下
+        state._teachConfirming = true;
+        showTeachConfirm(warnings, ()=>{
+          // 用户选择"仍然下" → 设置 force 标志后再调用
+          state._teachConfirming = false;
+          state._teachSkipNext = true;
+          tryPlace(r, c, 1);
+        }, ()=>{
+          state._teachConfirming = false;
+        });
+        return false;
+      }
+    }
+    // 跳过本次教学检查的标志(用户选了"仍然下")
+    if(state._teachSkipNext){
+      state._teachSkipNext = false;
+    }
+
     board[r][c]=p;
     const opp=p===1?2:1;
     const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
@@ -3676,7 +3965,30 @@ function initGo(wrap){
     addHistory(`${p===1?'黑':'白'} · ${String.fromCharCode(65+c)}${SIZE-r}${removedTotal?` 提${removedTotal}子`:''}`);
     document.getElementById('evalScore').textContent = `提子 黑${captured[1]}:${captured[2]}白`;
     state.history.push({undo:()=>{board[r][c]=0;removedCoords.forEach(([gr,gc])=>board[gr][gc]=opp);captured[p]-=removedTotal;redraw();}});
+    // 记给 KataGo 用(只有围棋开高手难度时才被读取)
+    if(window.recordKataMoveHistory) window.recordKataMoveHistory(r, c, p);
     state.current=state.current===1?2:1;setActivePlayer(state.current);
+
+    // 教学模式:玩家落子后的局势评估
+    if(settings.teach && p === 1 && state.mode === 'ai' && !state.gameOver){
+      const myCount = board.flat().filter(v=>v===1).length;
+      const oppCount = board.flat().filter(v=>v===2).length;
+      const diff = myCount - oppCount;
+      const move = state.history.length;
+      // 每 5 手给一次大局评估,平时只在吃子 / 大事件时讲
+      if(removedTotal >= 2){
+        showTeachToast(`妙手!提子 ${removedTotal} 颗,局势大优`);
+      } else if(removedTotal === 1){
+        showTeachToast(`吃了 1 子,黑 ${myCount} : ${oppCount} 白`);
+      } else if(move % 8 === 0){
+        let advice = '';
+        if(diff > 8) advice = '目前你领先 · 注意稳住';
+        else if(diff < -8) advice = '局势落后 · 找机会反击';
+        else advice = '局势胶着 · 继续布局';
+        showTeachToast(advice);
+      }
+    }
+
     if(state.mode==='ai'&&state.current===2&&!state.gameOver) setTimeout(aiGo,500);
     return true;
   }
@@ -3686,6 +3998,8 @@ function initGo(wrap){
     passCount++;
     addHistory(`${state.current===1?'黑':'白'} · 虚着 Pass`);
     state.history.push({});
+    // 记 pass 给 KataGo
+    if(window.recordKataMoveHistory) window.recordKataMoveHistory(-1, -1, state.current);
     if(passCount>=2){
       // 双方连续虚着,结束数子
       endGameByCount();
@@ -3793,118 +4107,656 @@ function initGo(wrap){
   // AI:智能化版本
   function aiGo(){
     showThinkingGo(true);
-    setTimeout(()=>{
-      const move = pickGoMove();
+    const diff = state.difficulty || 'normal';
+    const delay = diff === 'hard' ? 50 : (settings.aiDelay ? 450 : 50);
+    setTimeout(async ()=>{
+      let move;
+      try{
+        if(diff === 'hard'){
+          // 高手难度:先试 KataGo,失败回退 MCTS
+          move = await kataGoMove({SIZE, board, isLegal, isTrueEye, history: state.history})
+                 || await mctsPickMove(2200);
+        } else {
+          move = pickGoMove();
+        }
+      } catch(e){
+        console.error('Go AI error:', e);
+        move = pickGoMove();
+      }
       showThinkingGo(false);
       if(move){
         tryPlace(move.r, move.c, 2);
       } else {
-        // 找不到合法点 → 虚着
         passMove();
       }
-    }, settings.aiDelay ? 450 : 50);
+    }, delay);
+  }
+
+  // ====== MCTS 蒙特卡洛搜索 (高手难度) ======
+  function mctsPickMove(budgetMs){
+    return new Promise((resolve)=>{
+      const me = 2, opp = 1;
+
+      const allLegal = [];
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+        if(board[r][c]!==0) continue;
+        if(!isLegal(r,c,me)) continue;
+        if(isTrueEye(r, c, me)) continue;
+        allLegal.push({r,c});
+      }
+      if(allLegal.length === 0){resolve(null);return;}
+      if(allLegal.length === 1){resolve(allLegal[0]);return;}
+
+      const scored = allLegal.map(({r,c})=>{
+        let score = 0;
+        const captures = countCapturesIfMove(r, c, me);
+        score += captures * 80;
+        const myLibs = withMove(r, c, me, ()=> countLiberties(getGroup(r,c))) || 0;
+        if(myLibs <= 1) score -= 50;
+        else score += myLibs * 2;
+        let nearOwn=0, nearOpp=0;
+        for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+          if(dr===0&&dc===0) continue;
+          const v = board[r+dr]?.[c+dc];
+          if(v===me) nearOwn++;
+          if(v===opp) nearOpp++;
+        }
+        score += nearOwn*3 + nearOpp*2;
+        const fromEdge = Math.min(r,c,SIZE-1-r,SIZE-1-c);
+        if(fromEdge===0) score -= 30;
+        else if(fromEdge===1) score -= 12;
+        else if(fromEdge===2) score += 8;
+        else if(fromEdge===3) score += 6;
+        return {r,c,score};
+      });
+      scored.sort((a,b)=>b.score-a.score);
+      const topCandidates = scored.slice(0, Math.min(12, scored.length));
+
+      const stats = topCandidates.map(c=>({...c, n:0, w:0}));
+      const startT = Date.now();
+      let totalPlayouts = 0;
+      const PLAYOUT_DEPTH = 28;
+      const CHUNK_SIZE = 8; // 每 8 次 playout 让出一次主线程
+
+      function runChunk(){
+        if(Date.now() - startT >= budgetMs){
+          // 时间到,选最优
+          stats.sort((a,b)=>{
+            if(b.n !== a.n) return b.n - a.n;
+            const aw = a.n > 0 ? a.w/a.n : 0;
+            const bw = b.n > 0 ? b.w/b.n : 0;
+            return bw - aw;
+          });
+          console.log('MCTS:', totalPlayouts, 'playouts in', Date.now()-startT, 'ms');
+          const best = stats[0];
+          resolve({r: best.r, c: best.c});
+          return;
+        }
+
+        // 跑 CHUNK_SIZE 次 playout
+        for(let i=0; i<CHUNK_SIZE; i++){
+          if(Date.now() - startT >= budgetMs) break;
+          const N = totalPlayouts;
+          let bestUcb = -Infinity, sel = null;
+          for(const s of stats){
+            let ucb;
+            if(s.n === 0){
+              ucb = 1e6 + s.score*0.001;
+            } else {
+              const winrate = s.w / s.n;
+              ucb = winrate + 1.4 * Math.sqrt(Math.log(N+1) / s.n);
+            }
+            if(ucb > bestUcb){bestUcb = ucb; sel = s;}
+          }
+          if(!sel) break;
+          const result = doPlayout(sel.r, sel.c, PLAYOUT_DEPTH);
+          sel.n++;
+          sel.w += result;
+          totalPlayouts++;
+        }
+
+        // 让出主线程,继续下一轮
+        setTimeout(runChunk, 0);
+      }
+
+      runChunk();
+    });
+  }
+
+  // 在 (r,c) 落 me 子,然后双方 alternate 用启发式 quick policy 模拟 depth 手,
+  // 最后用领地启发评估,返回 me 的"胜率" 0~1
+  function doPlayout(r, c, depth){
+    const snapshot = board.map(row => row.slice());
+    const me = 2, opp = 1;
+    try{
+      if(!isLegal(r, c, me)) return 0;
+      placeRaw(r, c, me);
+
+      let cur = opp;
+      let passCount = 0;
+      for(let step=0; step<depth; step++){
+        const move = quickPolicyMove(cur);
+        if(!move){
+          passCount++;
+          if(passCount >= 2) break;
+        } else {
+          placeRaw(move.r, move.c, cur);
+          passCount = 0;
+        }
+        cur = cur===me ? opp : me;
+      }
+
+      const myScore = scoreForPlayer(me);
+      const oppScore = scoreForPlayer(opp);
+      const diff = myScore - oppScore - 6.5;
+      return 1 / (1 + Math.exp(-diff * 0.1));
+    } finally {
+      // 无论如何,还原棋盘
+      for(let i=0;i<SIZE;i++) for(let j=0;j<SIZE;j++) board[i][j] = snapshot[i][j];
+    }
+  }
+
+  // 不带完整 tryPlace 检查的"裸落子",playout 内部用,极简提子
+  function placeRaw(r, c, p){
+    board[r][c] = p;
+    const opp = p===1?2:1;
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for(const[dr,dc] of dirs){
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+      if(board[nr][nc]===opp){
+        const grp = getGroup(nr,nc);
+        if(!hasLiberty(grp)) grp.forEach(([gr,gc])=>board[gr][gc]=0);
+      }
+    }
+    // 自杀:若自己也没气,撤销
+    const selfGrp = getGroup(r,c);
+    if(!hasLiberty(selfGrp)){
+      // 简化:不应发生,但兜底
+      selfGrp.forEach(([gr,gc])=>board[gr][gc]=0);
+    }
+  }
+
+  // playout 内用的快速策略:
+  // 1. 若发现对方 1 气棋串 → 80% 概率吃
+  // 2. 若发现己方 1 气棋串 → 70% 概率救
+  // 3. 否则在前 6 个启发分高的候选中随机选 1 个
+  function quickPolicyMove(p){
+    const opp = p===1?2:1;
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    // 优先级 1:吃对方
+    if(Math.random() < 0.8){
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+        if(board[r][c] !== opp) continue;
+        const grp = getGroup(r,c);
+        if(countLiberties(grp) === 1){
+          // 找那一气
+          for(const[gr,gc] of grp){
+            for(const[dr,dc] of dirs){
+              const nr=gr+dr,nc=gc+dc;
+              if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+              if(board[nr][nc]===0 && isLegal(nr,nc,p)){
+                return {r:nr, c:nc};
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 优先级 2:救自己
+    if(Math.random() < 0.7){
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+        if(board[r][c] !== p) continue;
+        const grp = getGroup(r,c);
+        if(countLiberties(grp) === 1 && grp.length >= 2){
+          // 试图逃
+          for(const[gr,gc] of grp){
+            for(const[dr,dc] of dirs){
+              const nr=gr+dr,nc=gc+dc;
+              if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+              if(board[nr][nc]===0 && isLegal(nr,nc,p)){
+                // 模拟一下,看气是否增加
+                const libsAfter = withMove(nr, nc, p, ()=> countLiberties(getGroup(nr,nc)));
+                if(libsAfter >= 2){
+                  return {r:nr, c:nc};
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 优先级 3:启发分中高的随机
+    const candidates = [];
+    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+      if(board[r][c]!==0) continue;
+      if(!isLegal(r,c,p)) continue;
+      if(isTrueEye(r,c,p)) continue;
+      // 简单评分
+      let s = Math.random()*2;
+      let nearOwn=0, nearOpp=0;
+      for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+        if(dr===0&&dc===0) continue;
+        const v = board[r+dr]?.[c+dc];
+        if(v===p) nearOwn++;
+        if(v===opp) nearOpp++;
+      }
+      if(nearOwn===0 && nearOpp===0) continue; // 完全空旷的不要(节省时间)
+      s += nearOwn*2 + nearOpp*1.5;
+      const fe = Math.min(r,c,SIZE-1-r,SIZE-1-c);
+      if(fe===0) s -= 8;
+      else if(fe===1) s -= 3;
+      candidates.push({r,c,s});
+    }
+    if(candidates.length === 0) return null;
+    candidates.sort((a,b)=>b.s-a.s);
+    // 前 6 个中随机
+    return candidates[Math.floor(Math.random()*Math.min(6, candidates.length))];
+  }
+
+  function countCapturesIfMove(r, c, p){
+    const opp = p===1?2:1;
+    let total = 0;
+    board[r][c] = p;
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for(const[dr,dc] of dirs){
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+      if(board[nr][nc]===opp){
+        const grp = getGroup(nr,nc);
+        if(!hasLiberty(grp)) total += grp.length;
+      }
+    }
+    board[r][c] = 0;
+    return total;
+  }
+
+  function scoreForPlayer(p){
+    let stones = 0;
+    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+      if(board[r][c]===p) stones++;
+    }
+    // 简化领地:被完全围住的空区
+    const visited = Array.from({length:SIZE},()=>Array(SIZE).fill(false));
+    let territory = 0;
+    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+      if(board[r][c]!==0 || visited[r][c]) continue;
+      // BFS
+      const stack = [[r,c]];
+      const region = [];
+      const borders = new Set();
+      while(stack.length){
+        const[cr,cc] = stack.pop();
+        if(cr<0||cr>=SIZE||cc<0||cc>=SIZE) continue;
+        if(visited[cr][cc]) continue;
+        if(board[cr][cc] !== 0){borders.add(board[cr][cc]); continue;}
+        visited[cr][cc] = true;
+        region.push([cr,cc]);
+        stack.push([cr-1,cc],[cr+1,cc],[cr,cc-1],[cr,cc+1]);
+      }
+      if(borders.size===1 && [...borders][0]===p){
+        territory += region.length;
+      }
+    }
+    return stones + territory;
+  }
+
+  // 工具函数:计算一个棋串的气数(去重)
+  function countLiberties(grp){
+    const libSet = new Set();
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for(const[gr,gc] of grp){
+      for(const[dr,dc] of dirs){
+        const nr=gr+dr,nc=gc+dc;
+        if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&board[nr][nc]===0) libSet.add(nr*SIZE+nc);
+      }
+    }
+    return libSet.size;
+  }
+
+  // 找到 board 上所有 p 颜色的棋串(独立群)
+  function findAllGroups(p){
+    const visited = Array.from({length:SIZE},()=>Array(SIZE).fill(false));
+    const groups = [];
+    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
+      if(board[r][c]!==p || visited[r][c]) continue;
+      const grp = getGroup(r,c);
+      grp.forEach(([gr,gc])=>visited[gr][gc]=true);
+      groups.push(grp);
+    }
+    return groups;
+  }
+
+  // 检查 (r,c) 是否是 p 方的真眼:周围 4 个相邻点全是 p 或棋盘边界,且 4 个对角中至少 3 个是 p 或边
+  function isTrueEye(r, c, p){
+    if(board[r][c] !== 0) return false;
+    const adj = [[-1,0],[1,0],[0,-1],[0,1]];
+    for(const[dr,dc] of adj){
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue; // 边界算"安全"
+      if(board[nr][nc] !== p) return false;
+    }
+    // 对角线检查
+    const diag = [[-1,-1],[-1,1],[1,-1],[1,1]];
+    let friendlyDiag = 0, totalDiag = 0;
+    let isEdge = (r===0||r===SIZE-1||c===0||c===SIZE-1);
+    for(const[dr,dc] of diag){
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=SIZE||nc<0||nc>=SIZE){friendlyDiag++;continue;}
+      totalDiag++;
+      if(board[nr][nc]===p) friendlyDiag++;
+    }
+    // 中央眼:对角 4 个至少 3 个是友方
+    // 边眼:对角 2-3 个至少所有都是友方
+    if(isEdge){
+      return friendlyDiag >= totalDiag; // 边/角眼要求更严
+    } else {
+      return friendlyDiag >= 3;
+    }
+  }
+
+  // 模拟在 (r,c) 落 p 子,然后返回函数让你还原
+  function withMove(r, c, p, fn){
+    if(!isLegal(r,c,p)) return null;
+    board[r][c] = p;
+    const opp = p===1?2:1;
+    const removed = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for(const[dr,dc] of dirs){
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+      if(board[nr][nc]===opp){
+        const grp = getGroup(nr,nc);
+        if(!hasLiberty(grp)){
+          grp.forEach(([gr,gc])=>{board[gr][gc]=0;removed.push([gr,gc,opp]);});
+        }
+      }
+    }
+    const result = fn();
+    // 还原
+    board[r][c] = 0;
+    removed.forEach(([gr,gc,col])=>board[gr][gc]=col);
+    return result;
   }
 
   function pickGoMove(){
     const diff = state.difficulty || 'normal';
-    // 收集所有合法点
+    const me = 2, opp = 1;
+
+    // 1. 收集合法候选点
     const candidates = [];
     for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++){
       if(board[r][c]!==0) continue;
-      if(!isLegal(r,c,2)) continue;
+      if(!isLegal(r,c,me)) continue;
+      // 不要下进自己的真眼!
+      if(isTrueEye(r, c, me)) continue;
       candidates.push({r,c});
     }
     if(candidates.length===0) return null;
 
-    // 评估每个点
+    // 2. 评估当前局面下己方/敌方棋串的危险程度
+    const myGroups = findAllGroups(me);
+    const oppGroups = findAllGroups(opp);
+    const myUrgent = myGroups.filter(g=>countLiberties(g)<=2 && g.length>=1);
+    const oppKillable = oppGroups.filter(g=>countLiberties(g)<=2 && g.length>=1);
+
+    // 3. 紧急情况:吃对方大块
+    for(const grp of oppKillable){
+      const libs = countLiberties(grp);
+      if(libs === 1 && grp.length >= 1){
+        // 找到那唯一的气点,如果落子能吃,直接下
+        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+        for(const[gr,gc] of grp){
+          for(const[dr,dc] of dirs){
+            const nr=gr+dr,nc=gc+dc;
+            if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+            if(board[nr][nc]===0 && isLegal(nr,nc,me)){
+              // 模拟一下,确认这步能吃到对方且自己不死
+              const ok = withMove(nr, nc, me, ()=>{
+                const myGrp = getGroup(nr,nc);
+                return hasLiberty(myGrp);
+              });
+              if(ok){
+                // 优先吃大块
+                if(grp.length >= 3 || diff !== 'easy') return {r:nr, c:nc};
+                // 简单难度也有概率走过
+                if(Math.random() < 0.7) return {r:nr, c:nc};
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 4. 紧急情况:自己有棋串只剩 1 气,要么逃要么吃
+    for(const grp of myUrgent){
+      const libs = countLiberties(grp);
+      if(libs === 1 && grp.length >= 1){
+        // 找出唯一一口气
+        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+        let escapePoint = null;
+        for(const[gr,gc] of grp){
+          for(const[dr,dc] of dirs){
+            const nr=gr+dr,nc=gc+dc;
+            if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+            if(board[nr][nc]===0){escapePoint={r:nr,c:nc}; break;}
+          }
+          if(escapePoint) break;
+        }
+        if(escapePoint && isLegal(escapePoint.r, escapePoint.c, me)){
+          // 模拟逃跑,看是否能逃脱(逃完后至少 2 气)
+          const newLibs = withMove(escapePoint.r, escapePoint.c, me, ()=>{
+            return countLiberties(getGroup(escapePoint.r, escapePoint.c));
+          });
+          if(newLibs >= 2){
+            // 棋串够大值得救
+            if(grp.length >= 3) return escapePoint;
+            if(diff !== 'easy' && grp.length >= 1) return escapePoint;
+          }
+        }
+      }
+    }
+
+    // 5. 对每个候选点评分
     const scored = candidates.map(({r,c})=>{
       let score = 0;
+      const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
 
-      // 1. 落子能吃多少子
-      board[r][c] = 2;
-      const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+      // === A. 吃子收益(吃对方多少子)===
+      const captures = withMove(r, c, me, ()=>{
+        // 落子后扫一遍,看 board 上对方棋子比之前少了多少
+        // 因为 withMove 已经处理了提子,我们在 fn 内部统计
+        let oppCount = 0;
+        for(let i=0;i<SIZE;i++) for(let j=0;j<SIZE;j++) if(board[i][j]===opp) oppCount++;
+        return oppCount;
+      });
+      // 当前对方子数
+      let oppCountBefore = 0;
+      for(let i=0;i<SIZE;i++) for(let j=0;j<SIZE;j++) if(board[i][j]===opp) oppCountBefore++;
+      const capturedCount = oppCountBefore - (captures ?? oppCountBefore);
+      score += capturedCount * 80;
+
+      // === B. 防守:对方下此点能吃我多少子 ===
+      let oppCapture = 0;
+      board[r][c] = opp;
+      const isOppLegal = (function(){
+        const tmp = getGroup(r,c);
+        let myCount = 0;
+        for(const[dr,dc] of dirs){
+          const nr=r+dr,nc=c+dc;
+          if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
+          if(board[nr][nc]===me){
+            const g = getGroup(nr,nc);
+            if(!hasLiberty(g)) myCount += g.length;
+          }
+        }
+        oppCapture = myCount;
+        return hasLiberty(tmp) || myCount > 0;
+      })();
+      board[r][c] = 0;
+      if(isOppLegal) score += oppCapture * 75;
+
+      // === C. 落子后自己的气数(越多越安全)===
+      const myLibs = withMove(r, c, me, ()=>{
+        return countLiberties(getGroup(r,c));
+      }) || 0;
+      if(myLibs === 1) score -= 80;          // 自送一气 → 大惩罚
+      else if(myLibs === 2) score -= 5;
+      else score += myLibs * 2;
+
+      // === D. 大龙保护:这步若是己方某串的延伸,看那串现有气数 ===
+      let extendingGroupLibs = Infinity, extendingGroupSize = 0;
       for(const[dr,dc] of dirs){
         const nr=r+dr,nc=c+dc;
         if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
-        if(board[nr][nc]===1){
-          const grp=getGroup(nr,nc);
-          if(!hasLiberty(grp)) score += grp.length * 100;
+        if(board[nr][nc]===me){
+          const g = getGroup(nr,nc);
+          const libs = countLiberties(g);
+          if(libs < extendingGroupLibs){
+            extendingGroupLibs = libs;
+            extendingGroupSize = g.length;
+          }
         }
       }
-      board[r][c] = 0;
+      if(extendingGroupLibs <= 2 && extendingGroupSize >= 2){
+        // 救自己一块大棋
+        score += extendingGroupSize * 15;
+      }
 
-      // 2. 防守:对方下此点能吃我多少子
-      board[r][c] = 1;
+      // === E. 对方棋串威胁(攻杀)===
+      let nearOppGroupLibs = Infinity, nearOppGroupSize = 0;
       for(const[dr,dc] of dirs){
         const nr=r+dr,nc=c+dc;
         if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) continue;
-        if(board[nr][nc]===2){
-          const grp=getGroup(nr,nc);
-          if(!hasLiberty(grp)) score += grp.length * 90;
+        if(board[nr][nc]===opp){
+          const g = getGroup(nr,nc);
+          const libs = countLiberties(g);
+          if(libs < nearOppGroupLibs){
+            nearOppGroupLibs = libs;
+            nearOppGroupSize = g.length;
+          }
         }
       }
-      board[r][c] = 0;
+      if(nearOppGroupLibs <= 2 && nearOppGroupSize >= 1){
+        // 攻击对方薄弱串
+        score += nearOppGroupSize * 12;
+      }
 
-      // 3. 周围有自己/对方棋子加分
+      // === F. 周围联络(连接己方/接近对方)===
       let nearOwn = 0, nearOpp = 0;
       for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
         if(dr===0&&dc===0) continue;
         const v = board[r+dr]?.[c+dc];
-        if(v===2) nearOwn++;
-        if(v===1) nearOpp++;
+        if(v===me) nearOwn++;
+        if(v===opp) nearOpp++;
       }
-      score += nearOpp * 4;  // 接近对方扩张
-      score += nearOwn * 2;  // 连接自己
+      score += nearOwn * 3;
+      score += nearOpp * 2;
 
-      // 4. 棋型偏好:避开一线、二线开局,星位/小目高
+      // === G. 距离感:开局偏好三四线,且不孤立 ===
       const fromEdge = Math.min(r, c, SIZE-1-r, SIZE-1-c);
-      if(state.history.length < 20){
-        // 开局阶段偏向三线、四线
-        if(fromEdge===0) score -= 50;
-        else if(fromEdge===1) score -= 20;
-        else if(fromEdge===2) score += 10; // 三线
-        else if(fromEdge===3) score += 8;  // 四线
-      } else {
-        if(fromEdge===0) score -= 30;
-        else if(fromEdge===1) score -= 10;
-      }
+      const moveNum = state.history.length;
+      if(moveNum < 25){
+        if(fromEdge===0) score -= 60;
+        else if(fromEdge===1) score -= 25;
+        else if(fromEdge===2) score += 12;  // 三线
+        else if(fromEdge===3) score += 10;  // 四线
+        else if(fromEdge>=4) score += 4;
 
-      // 5. 不在已落子上(已经在合法性里检查)
-
-      // 6. 不下"敌方眼位"或单子自压
-      // 简化:检查这步是否会让自己变成"只剩一气"
-      board[r][c] = 2;
-      const selfGrp = getGroup(r,c);
-      let myLiberties = 0;
-      const libSet = new Set();
-      for(const[gr,gc] of selfGrp){
-        for(const[dr,dc] of dirs){
-          const nr=gr+dr,nc=gc+dc;
-          if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&board[nr][nc]===0) libSet.add(nr*SIZE+nc);
+        // 开局尽量靠近星位(3,3)(3,9)(3,15)(9,3)(9,9)(9,15)(15,3)(15,9)(15,15)
+        const stars = [3,9,15];
+        let minStarDist = 100;
+        for(const sr of stars) for(const sc of stars){
+          const d = Math.abs(r-sr) + Math.abs(c-sc);
+          if(d < minStarDist) minStarDist = d;
         }
+        if(minStarDist <= 1) score += 6;
+        if(minStarDist === 0 && moveNum < 8) score += 15; // 直接占星
+      } else {
+        if(fromEdge===0) score -= 35;
+        else if(fromEdge===1) score -= 12;
       }
-      myLiberties = libSet.size;
-      board[r][c] = 0;
-      if(myLiberties===1) score -= 30; // 自送一气
-      if(myLiberties>=3) score += 5;
 
-      // 难度调整:简单/普通加入随机扰动
-      if(diff==='easy') score += (Math.random()-0.5)*100;
-      else if(diff==='normal') score += (Math.random()-0.5)*30;
+      // === H. 不下到对方真眼附近(都是无效着)===
+      if(isTrueEye(r, c, opp)) score -= 200;
 
-      // 风格调整
+      // === I. 避免完全孤立的子(开局以外没邻居一概不下)===
+      if(moveNum > 10 && nearOwn === 0 && nearOpp === 0){
+        // 完全空旷,惩罚(除非是大场)
+        const allEmpty = (()=>{
+          for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++){
+            const v = board[r+dr]?.[c+dc];
+            if(v===me || v===opp) return false;
+          }
+          return true;
+        })();
+        if(allEmpty) score -= 15;
+      }
+
+      // === J. 难度调整 ===
+      if(diff==='easy') score += (Math.random()-0.5) * 60;
+      else if(diff==='normal') score += (Math.random()-0.5) * 18;
+      else score += (Math.random()-0.5) * 4; // 高手也有微小扰动避免完全确定
+
+      // === K. 风格调整 ===
       const persona = state.persona || 'balanced';
-      if(persona==='aggressive') score = score*1.3 + nearOpp*8;
-      else if(persona==='defensive') score = score + nearOwn*5;
+      if(persona==='aggressive'){
+        score = score * 1.15 + nearOpp * 6 + (nearOppGroupSize > 0 ? 8 : 0);
+      } else if(persona==='defensive'){
+        score = score + nearOwn * 5 + myLibs * 3;
+      }
 
-      return {r,c,score};
+      return {r, c, score};
     });
 
-    scored.sort((a,b)=>b.score-a.score);
-    // 简单难度从前 5 个中随机
-    if(diff==='easy') return scored[Math.floor(Math.random()*Math.min(5,scored.length))];
+    scored.sort((a,b)=>b.score - a.score);
+
+    // 高手难度:对前 3 个候选做 1 步深前瞻——选择"对手最优应对后我仍最强"的
+    if(diff === 'hard' && scored.length > 1){
+      const top = scored.slice(0, 3);
+      let bestResult = null, bestEval = -Infinity;
+      for(const cand of top){
+        const evalAfter = withMove(cand.r, cand.c, me, ()=>{
+          // 找到对方下完最好的回应后,评估己方局面
+          let oppBest = -Infinity;
+          let triedAny = false;
+          // 简化:对方只考虑几个关键候选
+          for(let rr=0; rr<SIZE; rr+=2) for(let cc=0; cc<SIZE; cc+=2){
+            if(board[rr][cc] !== 0) continue;
+            if(!isLegal(rr, cc, opp)) continue;
+            if(isTrueEye(rr, cc, opp)) continue;
+            triedAny = true;
+            // 对方落子后,评估我方丢的子数
+            const evalScore = withMove(rr, cc, opp, ()=>{
+              let myCount = 0, oppCount = 0;
+              for(let i=0;i<SIZE;i++) for(let j=0;j<SIZE;j++){
+                if(board[i][j]===me) myCount++;
+                else if(board[i][j]===opp) oppCount++;
+              }
+              return myCount - oppCount;
+            });
+            if(evalScore !== null && -evalScore > oppBest){
+              oppBest = -evalScore;
+            }
+          }
+          if(!triedAny) return cand.score;
+          return -oppBest; // 我方最终评估值
+        });
+        if(evalAfter !== null && evalAfter > bestEval){
+          bestEval = evalAfter;
+          bestResult = cand;
+        }
+      }
+      if(bestResult) return bestResult;
+    }
+
+    // 入门难度从前 6 个中随机
+    if(diff === 'easy') return scored[Math.floor(Math.random()*Math.min(6, scored.length))];
     // 普通从前 3 个中随机
-    if(diff==='normal') return scored[Math.floor(Math.random()*Math.min(3,scored.length))];
+    if(diff === 'normal') return scored[Math.floor(Math.random()*Math.min(3, scored.length))];
     return scored[0];
   }
 
@@ -3913,8 +4765,13 @@ function initGo(wrap){
     if(!card) return;
     const status = card.querySelector('.player-status');
     if(!status) return;
-    if(on) status.innerHTML = '执白 · <span class="thinking-dots">思考中<span></span><span></span><span></span></span>';
-    else status.textContent = '执白 · 等待中';
+    if(on){
+      const diff = state.difficulty || 'normal';
+      const label = diff === 'hard' ? '深度推演' : '思考中';
+      status.innerHTML = `执白 · <span class="thinking-dots">${label}<span></span><span></span><span></span></span>`;
+    } else {
+      status.textContent = '执白 · 等待中';
+    }
   }
 
   wrap.appendChild(el);
@@ -5560,6 +6417,11 @@ function playSound(type){
     case 'achievement': // 成就
       [523,659,784,659,1046].forEach((f,i)=>note(f, 0.18, 0.14, 'triangle', i*0.08));
       break;
+    case 'gameStart':   // 开局礼:温润的五声乐句(五声音阶 宫商角徵羽)
+      // C4 D4 E4 G4 A4 → 中国五声音阶
+      [261.63, 392.00, 523.25].forEach((f,i)=>note(f, 0.4, 0.14, 'sine', i*0.12));
+      [659.25].forEach((f,i)=>note(f, 0.6, 0.18, 'triangle', 0.45));
+      break;
   }
 }
 
@@ -6729,6 +7591,648 @@ window.enterGame = async function(g){
 };
 
 /* ============================================
+   预对局设置弹窗 + 对局中锁定模式 + 重开确认
+============================================ */
+let _pregameChoice = {mode:'pvp', difficulty:'normal', persona:'balanced'};
+
+function showPregameDialog(game){
+  return new Promise(resolve=>{
+    const mask = document.getElementById('pregameMask');
+    const box = document.getElementById('pregameBox');
+    const meta = GAME_META[game] || {name:'对局', en:''};
+    const ic = (typeof GAME_ICONS!=='undefined' && GAME_ICONS[game]) ? GAME_ICONS[game] : {icon:'◆', color:'#D4623A'};
+
+    // 飞行棋特殊:不支持人机
+    const isAero = game === 'aeroplane';
+    if(isAero) _pregameChoice.mode = 'pvp';
+
+    function render(){
+      const c = _pregameChoice;
+      box.innerHTML = `
+        <div class="pregame-head">
+          <div class="pregame-icon" style="background:linear-gradient(135deg,${ic.color},${ic.color}CC);color:white;">
+            ${ic.icon}
+          </div>
+          <div class="pregame-titles">
+            <div class="pregame-title-cn">${meta.name}</div>
+            <div class="pregame-title-en">${meta.en || ''} · 开局之前</div>
+          </div>
+        </div>
+
+        <div class="pregame-section">
+          <div class="pregame-label">对局模式</div>
+          <div class="pregame-mode-row">
+            <button class="pregame-opt ${c.mode==='pvp'?'active':''}" data-mode="pvp">
+              <span>👥 双人对战</span>
+              <span class="pregame-opt-sub">同设备 · 两个玩家</span>
+            </button>
+            <button class="pregame-opt ${c.mode==='ai'?'active':''} ${isAero?'disabled':''}" data-mode="ai" ${isAero?'style="opacity:0.4;cursor:not-allowed;"':''}>
+              <span>🤖 人机对战</span>
+              <span class="pregame-opt-sub">${isAero?'此棋暂不支持':'挑战 AI'}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pregame-section" id="aiSettings" style="${c.mode==='ai'?'':'display:none;'}">
+          <div class="pregame-label">AI 难度</div>
+          <div class="pregame-diff-row">
+            <button class="pregame-opt ${c.difficulty==='easy'?'active':''}" data-diff="easy">
+              <span>入门</span>
+              <span class="pregame-opt-sub">新手友好</span>
+            </button>
+            <button class="pregame-opt ${c.difficulty==='normal'?'active':''}" data-diff="normal">
+              <span>普通</span>
+              <span class="pregame-opt-sub">平衡水平</span>
+            </button>
+            <button class="pregame-opt ${c.difficulty==='hard'?'active':''}" data-diff="hard">
+              <span>高手</span>
+              <span class="pregame-opt-sub">深度思考</span>
+            </button>
+          </div>
+          <div class="pregame-label" style="margin-top:14px;">AI 风格</div>
+          <div class="pregame-persona-row">
+            <button class="pregame-opt ${c.persona==='balanced'?'active':''}" data-persona="balanced">
+              <span>◆ 平衡</span>
+              <span class="pregame-opt-sub">攻守兼备</span>
+            </button>
+            <button class="pregame-opt ${c.persona==='aggressive'?'active':''}" data-persona="aggressive">
+              <span>⚔ 进攻</span>
+              <span class="pregame-opt-sub">主动出击</span>
+            </button>
+            <button class="pregame-opt ${c.persona==='defensive'?'active':''}" data-persona="defensive">
+              <span>⛨ 防守</span>
+              <span class="pregame-opt-sub">稳扎稳打</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pregame-actions">
+          <button class="secondary" onclick="closePregame()">取消</button>
+          <button class="primary" id="pregameStartBtn">
+            开始对局
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      `;
+
+      box.querySelectorAll('[data-mode]').forEach(b=>{
+        if(b.classList.contains('disabled')) return;
+        b.addEventListener('click',()=>{
+          _pregameChoice.mode = b.dataset.mode;
+          playSound('click');
+          render();
+        });
+      });
+      box.querySelectorAll('[data-diff]').forEach(b=>{
+        b.addEventListener('click',()=>{
+          _pregameChoice.difficulty = b.dataset.diff;
+          playSound('click');
+          render();
+        });
+      });
+      box.querySelectorAll('[data-persona]').forEach(b=>{
+        b.addEventListener('click',()=>{
+          _pregameChoice.persona = b.dataset.persona;
+          playSound('click');
+          render();
+        });
+      });
+      box.querySelector('#pregameStartBtn').addEventListener('click',()=>{
+        if(isAero) _pregameChoice.mode = 'pvp';
+        mask.classList.remove('show');
+        playSound('select');
+        resolve(true);
+      });
+    }
+    render();
+
+    window.closePregame = function(){
+      mask.classList.remove('show');
+      resolve(false);
+    };
+
+    mask.classList.add('show');
+  });
+}
+
+// 钩 enterGame:在真正进对局前先弹设置框(联机/恢复/回放/AI 自对弈除外)
+const _enterGameWithPregame = window.enterGame;
+window.enterGame = async function(g){
+  if(state.online || state.replayMode || state._noPregame){
+    return _enterGameWithPregame(g);
+  }
+  const ok = await showPregameDialog(g);
+  if(!ok) return;
+  // 应用选择到 state
+  state.mode = _pregameChoice.mode;
+  state.difficulty = _pregameChoice.difficulty;
+  state.persona = _pregameChoice.persona;
+  // 同步左侧 UI
+  document.querySelectorAll('#modeTabs .mode-tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.mode===state.mode);
+  });
+  document.querySelectorAll('.diff-pill').forEach(p=>{
+    p.classList.toggle('active', p.dataset.diff===state.difficulty);
+  });
+  document.querySelectorAll('.persona-pill').forEach(p=>{
+    p.classList.toggle('active', p.dataset.persona===state.persona);
+  });
+  const diffWrap = document.getElementById('diffWrap');
+  if(diffWrap) diffWrap.style.display = state.mode==='ai' ? 'block' : 'none';
+  const p2 = document.getElementById('p2Name');
+  if(p2) p2.textContent = state.mode==='ai' ? 'AI 对手' : '玩家 二';
+  // 进入对局(这里会触发开场动画)
+  await _enterGameWithPregame(g);
+  // 锁定左侧模式区
+  lockBoardConfig(true);
+};
+
+function lockBoardConfig(locked){
+  const tabs = document.getElementById('modeTabs');
+  const diff = document.getElementById('diffWrap');
+  [tabs, diff].forEach(el=>{
+    if(!el) return;
+    el.classList.toggle('board-config-locked', locked);
+  });
+}
+
+// 返回大厅时解锁
+const _backForLockOrig = window.backToLobby;
+window.backToLobby = function(){
+  if(_backForLockOrig) _backForLockOrig();
+  lockBoardConfig(false);
+};
+
+// 拦截模式 tab 的点击,对局中给提示而不是切换
+document.querySelectorAll('#modeTabs .mode-tab').forEach(t=>{
+  t.addEventListener('click', e=>{
+    const tabs = document.getElementById('modeTabs');
+    if(tabs && tabs.classList.contains('board-config-locked')){
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      showToast('对局中不能切换模式 · 请返回大厅');
+    }
+  }, true);
+});
+
+/* 通用确认框 */
+let _confirmResolver = null;
+function showConfirm(title, msg, confirmText){
+  return new Promise(resolve=>{
+    _confirmResolver = resolve;
+    const box = document.getElementById('confirmBox');
+    box.innerHTML = `
+      <div class="confirm-icon">⚠</div>
+      <div class="confirm-title">${title}</div>
+      <div class="confirm-msg">${msg}</div>
+      <div class="confirm-actions">
+        <button class="secondary" onclick="closeConfirm(false)">取消</button>
+        <button class="primary" onclick="closeConfirm(true)">${confirmText||'确定'}</button>
+      </div>
+    `;
+    document.getElementById('confirmMask').classList.add('show');
+  });
+}
+window.closeConfirm = function(ok){
+  document.getElementById('confirmMask').classList.remove('show');
+  if(_confirmResolver){
+    const r = _confirmResolver; _confirmResolver = null;
+    r(!!ok);
+  }
+};
+
+// 重开:加确认框  ← 注:此处只是历史注释,真正的重开逻辑在文件后面
+
+/* ============================================
+   KataGo 神经网络集成(围棋高手难度)
+   仅在用户选围棋高手时按需加载,无侵入
+============================================ */
+const KATAGO_MODEL_URL = './katago-model/model.json';
+const TFJS_URL = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js';
+
+let _kataModel = null;
+let _kataLoading = null;
+let _kataMoveHistory = []; // 仅 KataGo 用,记最近 5 手 {r, c, side}
+
+// 让外部(围棋的 tryPlace 钩子)能记录 move history
+window.recordKataMoveHistory = function(r, c, side){
+  _kataMoveHistory.push({r, c, side});
+  if(_kataMoveHistory.length > 6) _kataMoveHistory.shift();
+};
+window.clearKataMoveHistory = function(){ _kataMoveHistory = []; };
+
+async function ensureKataLoaded(){
+  if(_kataModel) return _kataModel;
+  if(_kataLoading) return _kataLoading;
+  _kataLoading = (async ()=>{
+    try{
+      showToast('首次加载 KataGo,约 10-30 秒…');
+      // 1. 加载 TensorFlow.js
+      if(typeof tf === 'undefined'){
+        await new Promise((resolve,reject)=>{
+          const s = document.createElement('script');
+          s.src = TFJS_URL;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      // 2. 加载模型
+      tf.setBackend('cpu'); // wasm 更快但需额外脚本;cpu 兼容性最好
+      _kataModel = await tf.loadGraphModel(KATAGO_MODEL_URL);
+      showToast('✓ KataGo 已就绪');
+      return _kataModel;
+    } catch(e){
+      console.error('KataGo load failed:', e);
+      showToast('KataGo 加载失败,使用本地 AI');
+      _kataLoading = null;
+      return null;
+    }
+  })();
+  return _kataLoading;
+}
+
+// 构造 22 通道 x 361 个位置的输入张量
+// ctx: {SIZE, board, isLegal, isTrueEye, history}
+function buildKataInputs(ctx){
+  const SIZE = ctx.SIZE;
+  const board = ctx.board;
+  const inputBufferLength = SIZE * SIZE;
+  const inputBufferChannels = 22;
+  const inputGlobalBufferChannels = 19;
+
+  // 计算每个棋串的气数(简化:用 BFS 找连通块然后数空邻)
+  // 复用我们已有的工具,但这里 board 是闭包参数,得直接计算
+  function getGrp(r, c){
+    const col = board[r][c];
+    if(col === 0) return [];
+    const visited = new Set();
+    const grp = [];
+    const stack = [[r,c]];
+    while(stack.length){
+      const [cr, cc] = stack.pop();
+      const k = cr * SIZE + cc;
+      if(visited.has(k)) continue;
+      if(cr<0||cr>=SIZE||cc<0||cc>=SIZE) continue;
+      if(board[cr][cc] !== col) continue;
+      visited.add(k);
+      grp.push([cr, cc]);
+      stack.push([cr-1,cc],[cr+1,cc],[cr,cc-1],[cr,cc+1]);
+    }
+    return grp;
+  }
+  function libs(grp){
+    const set = new Set();
+    for(const [r,c] of grp){
+      for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){
+        const nr=r+dr,nc=c+dc;
+        if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&board[nr][nc]===0) set.add(nr*SIZE+nc);
+      }
+    }
+    return set.size;
+  }
+
+  // 我方 = 2 (白,AI),对手 = 1 (黑,玩家)
+  // KataGo: katago=自己, player=对手
+  // 但原代码有个 trick:kyu 等级会交换 player/katago,让神经网络以为自己在追赶
+  // 我们目标:dan 等级(最强),不交换
+  const katago = 2;
+  const player = 1;
+
+  const bin_inputs = new Float32Array(inputBufferLength * inputBufferChannels);
+  const global_inputs = new Float32Array(inputGlobalBufferChannels);
+  // 通道 0:棋盘位置(全 1)
+  // 通道 1:KataGo 的子
+  // 通道 2:对手的子
+  // 通道 3-5:气=1/2/3 的标记
+  for(let y=0; y<SIZE; y++){
+    for(let x=0; x<SIZE; x++){
+      const idx = (SIZE * y + x) * inputBufferChannels;
+      bin_inputs[idx + 0] = 1.0;
+      if(board[y][x] === katago) bin_inputs[idx + 1] = 1.0;
+      if(board[y][x] === player) bin_inputs[idx + 2] = 1.0;
+      if(board[y][x] !== 0){
+        const l = libs(getGrp(y, x));
+        if(l === 1) bin_inputs[idx + 3] = 1.0;
+        if(l === 2) bin_inputs[idx + 4] = 1.0;
+        if(l === 3) bin_inputs[idx + 5] = 1.0;
+      }
+    }
+  }
+  // 通道 9-13:最近 5 手的位置 / global_inputs[0..4]:对应位置如果是 pass
+  const hist = _kataMoveHistory.slice().reverse(); // 最新在前
+  const channelOffsets = [9, 10, 11, 12, 13];
+  const expectedSides = [player, katago, player, katago, player]; // 倒序的预期方
+  for(let i=0; i<Math.min(5, hist.length); i++){
+    const h = hist[i];
+    if(!h) continue;
+    if(h.side !== expectedSides[i]) continue;
+    if(h.r === -1 || h.c === -1){
+      // 这一手是 pass → 设置 global_inputs
+      global_inputs[i] = 1.0;
+    } else {
+      const idx = (SIZE * h.r + h.c) * inputBufferChannels + channelOffsets[i];
+      bin_inputs[idx] = 1.0;
+    }
+  }
+
+  // 通道 5:贴目(白方),selfKomi = komi+1 = 7.5
+  const selfKomi = katago === 2 ? 7.5 : -6.5;
+  global_inputs[5] = selfKomi / 20.0;
+
+  return {bin_inputs, global_inputs, inputBufferLength, inputBufferChannels, inputGlobalBufferChannels};
+}
+
+// 主接口:给定棋盘上下文,异步返回 KataGo 推荐的走法 {r, c} 或 null
+async function kataGoMove(ctx){
+  let model;
+  try{
+    model = await ensureKataLoaded();
+  } catch(e){
+    return null;
+  }
+  if(!model) return null;
+
+  const SIZE = ctx.SIZE;
+  const {bin_inputs, global_inputs, inputBufferLength, inputBufferChannels, inputGlobalBufferChannels} = buildKataInputs(ctx);
+
+  try{
+    const t1 = tf.tensor(bin_inputs, [1, inputBufferLength, inputBufferChannels], 'float32');
+    const t2 = tf.tensor(global_inputs, [1, inputGlobalBufferChannels], 'float32');
+    let results;
+    try{
+      results = await model.executeAsync({
+        'swa_model/bin_inputs': t1,
+        'swa_model/global_inputs': t2,
+      });
+    } finally {
+      t1.dispose();
+      t2.dispose();
+    }
+
+    // results[1] = 策略输出 [1, 362] (362 = 19*19+1, 最后是 pass)
+    const policyTensor = results[1].reshape([-1]);
+    const flatPolicyArray = await policyTensor.array();
+
+    // 清理张量
+    if(Array.isArray(results)){
+      results.forEach(t=>t.dispose && t.dispose());
+    }
+    policyTensor.dispose();
+
+    // 取 top 5 候选(只取棋盘内 361 个,排除 pass)
+    const indexed = [];
+    for(let i=0; i<361; i++) indexed.push({idx:i, score:flatPolicyArray[i]});
+    indexed.sort((a,b)=>b.score - a.score);
+    let topMoves = indexed.slice(0, 8);
+
+    // 开局前 10 手:从 top 3 随机选一个,避免每盘开局都一样
+    const moveNum = (ctx.history && ctx.history.length) || 0;
+    if(moveNum < 10){
+      const top3 = topMoves.slice(0, Math.min(3, topMoves.length));
+      // 把随机选的放第一位,其它跟着
+      const pick = top3[Math.floor(Math.random() * top3.length)];
+      topMoves = [pick, ...topMoves.filter(m=>m!==pick)];
+    }
+
+    // 找第一个合法且不是真眼的走法
+    for(const mv of topMoves){
+      const r = Math.floor(mv.idx / SIZE);
+      const c = mv.idx % SIZE;
+      if(ctx.board[r][c] !== 0) continue;
+      if(!ctx.isLegal(r, c, 2)) continue;
+      if(ctx.isTrueEye(r, c, 2)) continue;
+      return {r, c};
+    }
+    return null; // 没有合适的,让上层 fallback
+  } catch(e){
+    console.error('KataGo inference error:', e);
+    return null;
+  }
+}
+let _teachToastTimer = null;
+window.showTeachToast = function(msg){
+  const el = document.getElementById('teachToast');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  if(_teachToastTimer) clearTimeout(_teachToastTimer);
+  _teachToastTimer = setTimeout(()=>el.classList.remove('show'), 3500);
+};
+
+window.showTeachConfirm = function(warnings, onConfirm, onCancel){
+  const box = document.getElementById('teachConfirmBox');
+  box.innerHTML = `
+    <div class="teach-confirm-icon">⚠</div>
+    <div class="teach-confirm-title">这步似乎不妥</div>
+    <ul class="teach-confirm-list">
+      ${warnings.map(w=>`<li>${w}</li>`).join('')}
+    </ul>
+    <div class="confirm-actions">
+      <button class="secondary" id="teachCancelBtn">改下别处</button>
+      <button class="primary" id="teachConfirmBtn">仍然下这里</button>
+    </div>
+  `;
+  document.getElementById('teachConfirmMask').classList.add('show');
+  document.getElementById('teachCancelBtn').onclick = ()=>{
+    document.getElementById('teachConfirmMask').classList.remove('show');
+    if(onCancel) onCancel();
+  };
+  document.getElementById('teachConfirmBtn').onclick = ()=>{
+    document.getElementById('teachConfirmMask').classList.remove('show');
+    if(onConfirm) onConfirm();
+  };
+};
+
+/* ============================================
+   背景音乐系统(Web Audio 合成,极简古风)
+============================================ */
+let _bgmTimer = null;
+let _bgmGain = null;
+let _bgmNoteCount = 0;
+
+function startBgm(){
+  if(_bgmTimer) return;
+  if(settings.bgm === false) return;
+  if(!settings.sound) return;
+  const ctx = getAudio();
+  if(!ctx) return;
+
+  // 主增益(整体音量)
+  _bgmGain = ctx.createGain();
+  _bgmGain.gain.setValueAtTime(0, ctx.currentTime);
+  _bgmGain.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 1.5); // 慢慢淡入
+  _bgmGain.connect(ctx.destination);
+
+  // 五声音阶(C宫调):C D E G A
+  const scale = [261.63, 293.66, 329.63, 392.00, 440.00];
+  // 高一个八度
+  const high = scale.map(f=>f*2);
+  // 低一个八度
+  const low = scale.map(f=>f/2);
+
+  function playNote(){
+    if(!_bgmTimer) return; // 已经停止
+    const c = getAudio();
+    if(!c || !_bgmGain) return;
+    const now = c.currentTime;
+
+    // 选音:大部分是中音区,偶尔点高音和低音
+    let freq;
+    const roll = Math.random();
+    if(roll < 0.15) freq = high[Math.floor(Math.random()*high.length)];
+    else if(roll < 0.30) freq = low[Math.floor(Math.random()*low.length)];
+    else freq = scale[Math.floor(Math.random()*scale.length)];
+
+    // 包络:慢起慢落,模拟拨弦延音
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.5, now + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+    o.connect(g).connect(_bgmGain);
+    o.start(now);
+    o.stop(now + 2.6);
+
+    // 偶尔加一个倍频泛音
+    if(Math.random() < 0.3){
+      const o2 = c.createOscillator();
+      const g2 = c.createGain();
+      o2.type = 'triangle';
+      o2.frequency.value = freq * 2;
+      g2.gain.setValueAtTime(0, now);
+      g2.gain.linearRampToValueAtTime(0.12, now + 0.1);
+      g2.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+      o2.connect(g2).connect(_bgmGain);
+      o2.start(now);
+      o2.stop(now + 1.6);
+    }
+
+    _bgmNoteCount++;
+  }
+
+  // 第一个音立刻播,之后每 1.5-3.5 秒一个音
+  playNote();
+  function schedule(){
+    if(!_bgmTimer) return;
+    const delay = 1500 + Math.random() * 2000;
+    _bgmTimer = setTimeout(()=>{
+      playNote();
+      schedule();
+    }, delay);
+  }
+  _bgmTimer = setTimeout(schedule, 1500);
+}
+
+function stopBgm(){
+  if(_bgmTimer){
+    clearTimeout(_bgmTimer);
+    _bgmTimer = null;
+  }
+  const ctx = getAudio();
+  if(_bgmGain && ctx){
+    try{
+      _bgmGain.gain.cancelScheduledValues(ctx.currentTime);
+      _bgmGain.gain.setValueAtTime(_bgmGain.gain.value, ctx.currentTime);
+      _bgmGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
+      setTimeout(()=>{
+        try{_bgmGain.disconnect();}catch(e){}
+        _bgmGain = null;
+      }, 900);
+    }catch(e){_bgmGain = null;}
+  }
+}
+
+window.toggleBgm = function(btn){
+  settings.bgm = settings.bgm === false ? true : false;
+  // 我反过来:第一次点 false → 关
+  // 简化:用 !== false 判断"开"
+  if(settings.bgm === false){
+    btn.classList.remove('on');
+    stopBgm();
+    showToast('背景音乐已关闭');
+  } else {
+    btn.classList.add('on');
+    // 仅在对局中开
+    if(state.view === 'board' && !state.gameOver){
+      startBgm();
+    }
+    showToast('背景音乐已开启');
+  }
+  saveSettings();
+};
+
+// 应用设置时同步 bgm 按钮
+const _origApplySettings = applySettings;
+window.applySettings = function(){
+  _origApplySettings();
+  const bg = document.getElementById('bgmToggle');
+  if(bg) bg.classList.toggle('on', settings.bgm !== false);
+};
+// 立即同步一次
+setTimeout(()=>{
+  const bg = document.getElementById('bgmToggle');
+  if(bg) bg.classList.toggle('on', settings.bgm !== false);
+}, 100);
+
+/* ============================================
+   开始音效 + 启动 BGM
+============================================ */
+// 钩 enterGame 的最外层,加开始音效和 BGM 启动
+const _enterGameWithSound = window.enterGame;
+window.enterGame = async function(g){
+  await _enterGameWithSound(g);
+  // 进入对局后:开始音效 + BGM
+  if(state.view === 'board'){
+    setTimeout(()=>{
+      playSound('gameStart');
+      if(settings.bgm !== false && settings.sound) startBgm();
+    }, 200);
+  }
+};
+
+// 返回大厅时停 BGM
+const _backForBgm = window.backToLobby;
+window.backToLobby = function(){
+  stopBgm();
+  if(_backForBgm) _backForBgm();
+};
+
+// 切音效总开关时,顺便管理 BGM
+const _origToggleSound = window.toggleSound;
+window.toggleSound = function(){
+  if(_origToggleSound) _origToggleSound();
+  if(!settings.sound) stopBgm();
+  else if(state.view === 'board' && !state.gameOver && settings.bgm !== false){
+    startBgm();
+  }
+};
+const _restartOrig = window.restartGame;
+window.restartGame = async function(skipConfirm){
+  // 联机模式下不允许单方重开
+  if(state.online && !state.spectate){
+    showToast('联机模式下不能单方重开,请返回大厅');
+    return;
+  }
+  const moves = (state.history && state.history.length) || 0;
+  if(skipConfirm === true || state.gameOver || moves===0){
+    _restartOrig();
+    return;
+  }
+  const ok = await showConfirm(
+    '确认重开?',
+    `当前已进行 ${moves} 手,重开将清空棋盘。要继续吗?`,
+    '重新开始'
+  );
+  if(ok){
+    _restartOrig();
+    showToast('已重开');
+  }
+};
+
+/* ============================================
    联机对战(Firebase Firestore)
 ============================================ */
 
@@ -6951,23 +8455,31 @@ function cleanupOnline(){
 function startHeartbeat(){
   if(_heartbeatTimer) clearInterval(_heartbeatTimer);
   _heartbeatTimer = setInterval(async ()=>{
-    if(!_roomCode || !_sb || !_roomLocalState) return;
+    if(!_roomCode || !_sb) return;
     try{
-      if(_myRole===1) _roomLocalState.host = {..._roomLocalState.host, online:Date.now()};
-      else if(_roomLocalState.guest) _roomLocalState.guest = {..._roomLocalState.guest, online:Date.now()};
-      _roomLocalState.lastActivity = Date.now();
-      await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
-    }catch(e){}
-  }, 8000);
+      // 1. 拉取最新房间状态(补漏 realtime 漏掉的消息)
+      const {data:row} = await _sb.from('rooms').select('data').eq('id', _roomCode).maybeSingle();
+      if(row && row.data){
+        handleRoomUpdate(row.data);
+      }
+      // 2. 更新自己的心跳时间
+      if(_roomLocalState && _myRole !== 0){
+        if(_myRole===1) _roomLocalState.host = {..._roomLocalState.host, online:Date.now()};
+        else if(_roomLocalState.guest) _roomLocalState.guest = {..._roomLocalState.guest, online:Date.now()};
+        _roomLocalState.lastActivity = Date.now();
+        await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
+      }
+    }catch(e){console.warn('heartbeat fail', e);}
+  }, 5000);
 }
 
 let _lastSeenMovesLen = 0;
 function listenRoom(){
-  if(_roomChannel){_sb.removeChannel(_roomChannel);}
+  if(_roomChannel){try{_sb.removeChannel(_roomChannel);}catch(e){}}
   _lastSeenMovesLen = (_roomLocalState?.moves || []).length;
 
   _roomChannel = _sb
-    .channel(`room_${_roomCode}`)
+    .channel(`room_${_roomCode}_${Date.now()}`)
     .on('postgres_changes',
         {event:'UPDATE', schema:'public', table:'rooms', filter:`id=eq.${_roomCode}`},
         payload => handleRoomUpdate(payload.new?.data || {}))
@@ -6978,7 +8490,29 @@ function listenRoom(){
           cleanupOnline();
           if(typeof backToLobby==='function') backToLobby();
         })
-    .subscribe();
+    .subscribe((status)=>{
+      if(status === 'SUBSCRIBED'){
+        // 订阅成功,主动拉一次最新状态
+        pollRoomOnce();
+      } else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+        // 出错或关闭,3 秒后重连
+        console.warn('Realtime status:', status, '→ reconnecting in 3s');
+        if(state.online && _roomCode){
+          setTimeout(()=>{
+            if(state.online && _roomCode) listenRoom();
+          }, 3000);
+        }
+      }
+    });
+}
+
+// 主动从数据库拉一次最新状态(用于补漏 / 重连后)
+async function pollRoomOnce(){
+  if(!_sb || !_roomCode) return;
+  try{
+    const {data:row} = await _sb.from('rooms').select('data').eq('id', _roomCode).maybeSingle();
+    if(row && row.data) handleRoomUpdate(row.data);
+  }catch(e){console.warn('poll fail', e);}
 }
 
 function handleRoomUpdate(data){
@@ -6999,7 +8533,7 @@ function handleRoomUpdate(data){
     const opp = _myRole===1 ? data.guest : data.host;
     if(opp){
       state.onlineOpponent = opp;
-      const onlineRecent = Date.now() - (opp.online||0) < 20000;
+      const onlineRecent = Date.now() - (opp.online||0) < 15000;
       updateOpponentStatus(opp.name, onlineRecent);
     }
   }
