@@ -8480,17 +8480,20 @@ function startHeartbeat(){
   _heartbeatTimer = setInterval(async ()=>{
     if(!_roomCode || !_sb) return;
     try{
-      // 1. 拉取最新房间状态(补漏 realtime 漏掉的消息)
+      // 1. 拉取最新房间状态(同时也是补漏)
       const {data:row} = await _sb.from('rooms').select('data').eq('id', _roomCode).maybeSingle();
       if(row && row.data){
         handleRoomUpdate(row.data);
       }
-      // 2. 更新自己的心跳时间
-      if(_roomLocalState && _myRole !== 0){
-        if(_myRole===1) _roomLocalState.host = {..._roomLocalState.host, online:Date.now()};
-        else if(_roomLocalState.guest) _roomLocalState.guest = {..._roomLocalState.guest, online:Date.now()};
-        _roomLocalState.lastActivity = Date.now();
-        await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
+      // 2. 更新自己的心跳时间——基于刚拉到的最新版本,只改 host/guest.online 字段
+      if(row && row.data && _myRole !== 0){
+        const fresh = row.data;
+        if(_myRole===1 && fresh.host) fresh.host = {...fresh.host, online:Date.now()};
+        else if(_myRole===2 && fresh.guest) fresh.guest = {...fresh.guest, online:Date.now()};
+        fresh.lastActivity = Date.now();
+        await _sb.from('rooms').update({data: fresh}).eq('id', _roomCode);
+        // 同步本地
+        _roomLocalState = fresh;
       }
     }catch(e){console.warn('heartbeat fail', e);}
   }, 3000);
@@ -8550,15 +8553,7 @@ document.addEventListener('visibilitychange', ()=>{
     _roomChannel = null;
     listenRoom();
     pollRoomOnce();
-    // 立刻补一次心跳(后台时心跳可能被节流到 60s+)
-    if(_roomLocalState && _myRole !== 0 && _sb){
-      try{
-        if(_myRole===1) _roomLocalState.host = {..._roomLocalState.host, online:Date.now()};
-        else if(_roomLocalState.guest) _roomLocalState.guest = {..._roomLocalState.guest, online:Date.now()};
-        _roomLocalState.lastActivity = Date.now();
-        _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode).then(()=>{}, ()=>{});
-      }catch(e){}
-    }
+    // 不在这里直接 update _roomLocalState (会覆盖服务器),让下次心跳处理
   }
 });
 
@@ -8761,17 +8756,31 @@ async function sendMoveOnline(moveData){
   if(!_sb){console.warn('[online] sendMoveOnline: _sb is null'); return;}
   if(!_roomCode){console.warn('[online] sendMoveOnline: _roomCode is null'); return;}
   if(!state.online){console.warn('[online] sendMoveOnline: state.online is false'); return;}
-  if(!_roomLocalState){console.warn('[online] sendMoveOnline: _roomLocalState is null'); return;}
   try{
+    // 1. 先从服务器拉最新状态(避免本地副本陈旧导致覆盖对方走法)
+    const {data:row, error:fetchErr} = await _sb.from('rooms').select('data').eq('id', _roomCode).maybeSingle();
+    if(fetchErr){
+      console.error('[online] fetch latest before send failed:', fetchErr);
+      return;
+    }
+    if(!row || !row.data){
+      console.warn('[online] room data missing, cannot send');
+      return;
+    }
+    const latest = row.data;
+    // 2. 在最新版本上追加我的走法
     const newMove = {by: _myRole, type:'place', data:moveData, t:Date.now()};
-    _roomLocalState.moves = [...(_roomLocalState.moves||[]), newMove];
-    _roomLocalState.lastActivity = Date.now();
-    _lastSeenMovesLen = _roomLocalState.moves.length;
-    const {error} = await _sb.from('rooms').update({data: _roomLocalState}).eq('id', _roomCode);
-    if(error){
-      console.error('[online] supabase update error:', error);
+    latest.moves = [...(latest.moves || []), newMove];
+    latest.lastActivity = Date.now();
+    // 同步本地副本
+    _roomLocalState = latest;
+    _lastSeenMovesLen = latest.moves.length;
+    // 3. 写回
+    const {error: updateErr} = await _sb.from('rooms').update({data: latest}).eq('id', _roomCode);
+    if(updateErr){
+      console.error('[online] supabase update error:', updateErr);
     } else {
-      console.log('[online] move sent to server successfully, total moves:', _roomLocalState.moves.length);
+      console.log('[online] move sent to server successfully, total moves:', latest.moves.length);
     }
   }catch(e){console.error('[online] send move failed',e);}
 }
